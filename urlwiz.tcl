@@ -40,8 +40,8 @@ proc ::urlwiz::init {args} {
     variable version
     variable packages
 
-    set version(number) [string map {"$Re" "" "v: " "r" " \$" ""} {$Rev: 66 $}]
-    set version(date)   [string map { "$Da" "" "te: " "" " \$" ""} {$Date: 2011-06-03 13:26:36 +0200 (Fri, 03 Jun 2011) $}]
+    set version(number) "0.1-dev" 
+    set version(date)   "2012.01.25"
 
 
     package require http
