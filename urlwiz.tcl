@@ -155,10 +155,10 @@ proc ::urlwiz::url_last {nick chan text} {
     ::mysql::use $db $urlwiz(mysqldb)
 
     if {[string is double -strict [lindex $text 2]] && [lindex $text 2] <= 10} {
-        puthelp "PRIVMSG $chan :\[URL\] Showing last [lindex $text 2] url's"
+        puthelp "NOTICE $nick :\[URL\] Showing last [lindex $text 2] url's"
         set sqlsel "SELECT * FROM url ORDER BY url_id DESC LIMIT [lindex $text 2]"
     } else {
-        puthelp "PRIVMSG $chan :\[URL\] Showing last 5 url's"
+        puthelp "NOTICE $nick :\[URL\] Showing last 5 url's"
         set sqlsel "SELECT * FROM url ORDER BY url_id DESC LIMIT 5"
     }
 
@@ -170,9 +170,9 @@ proc ::urlwiz::url_last {nick chan text} {
 	set timeago [duration [expr {$currentime - [lindex $urlinfo 7]}]]
 
         if {[lindex $urlinfo 3] != ""} {
-            puthelp "PRIVMSG $chan :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 3] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
+            puthelp "NOTICE $nick :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 3] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
 	} else {
-            puthelp "PRIVMSG $chan :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 1] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
+            puthelp "NOTICE $nick :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 1] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
 	}
     }
 }
@@ -186,21 +186,21 @@ proc ::urlwiz::url_search {nick chan text} {
 
     set keyword [lrange $text 2 end]
 
-    puthelp "PRIVMSG $chan :\[URL\] Searching for: $keyword"
+    puthelp "NOTICE $nick :\[URL\] Searching for: $keyword"
 
     set sqlsel "SELECT * FROM url WHERE url LIKE '%$keyword%' OR title LIKE '%$keyword%' OR nick LIKE '%$keyword%' OR url_id LIKE '%$keyword%' ORDER BY url_id DESC LIMIT 5"
     set result [::mysql::sel $db $sqlsel -list]
 
-    if {$result == ""} {puthelp "PRIVMSG $chan :\[URL\] Nothing found."}
+    if {$result == ""} {puthelp "NOTICE $nick :\[URL\] Nothing found."}
 
     foreach urlinfo $result {
         set currentime [clock seconds]
 	set timeago [duration [expr {$currentime - [lindex $urlinfo 7]}]]
 
         if {[lindex $urlinfo 3] != ""} {
-            puthelp "PRIVMSG $chan :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 3] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
+            puthelp "NOTICE $nick :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 3] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
 	} else {
-            puthelp "PRIVMSG $chan :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 1] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
+            puthelp "NOTICE $nick :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 1] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
 	}
     }
 }
