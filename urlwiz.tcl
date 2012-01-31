@@ -283,6 +283,7 @@ proc ::urlwiz::url_stats {nick chan text} {
     set shortened [::mysql::sel $db $sqlsel -list]
 
     set percentage [expr (double($shortened) / double($total)) * 100]
+    set percentage [expr floor($percentage * 10) / 10]
 
     puthelp "NOTICE $nick :\[URL Stats\]:"
     puthelp "NOTICE $nick :There are $total links saved."
