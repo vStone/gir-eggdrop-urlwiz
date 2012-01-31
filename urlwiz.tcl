@@ -136,6 +136,7 @@ proc ::urlwiz::command_trigger {nick host user chan text} {
 	"!url search*" {[namespace current]::url_search $nick $chan $text}
 	"!url respam*" {[namespace current]::url_respam $nick $chan $text}
 	"!url reffed*" {[namespace current]::url_reffed $nick $chan $text}
+	"!url stats" {[namespace current]::url_stats $nick $chan $text}
 	"!url" -
 	default {
 	    puthelp "NOTICE $nick :\[URL usage\]:"
@@ -143,6 +144,8 @@ proc ::urlwiz::command_trigger {nick host user chan text} {
 	    puthelp "NOTICE $nick :Search for keyword           : !url search <keyword>"
             puthelp "NOTICE $nick :Respam a url                 : !url respam <id>"
 	    puthelp "NOTICE $nick :View reffered url's for nick : !url reffed \[nick\]"
+	    puthelp "NOTICE $nick :Show some basic stats        : !url stats"
+	    return
 	}
     }
 }
@@ -244,11 +247,11 @@ proc ::urlwiz::url_reffed {nick chan text} {
     set result [::mysql::sel $db $sqlsel -list]
 
     if {$result == ""} {
-        puthelp "PRIVMSG $chan :No refs found for nick: [lindex $text 2]"
+        puthelp "NOTICE $nick :No refs found for nick: [lindex $text 2]"
 	return
     }
 
-    puthelp "PRIVMSG $chan :\[URL\] Showing refs for nick: [lindex $text 2]"
+    puthelp "NOTICE $nick :\[URL\] Showing refs for nick: [lindex $text 2]"
 
     foreach urlinfo $result {
 
@@ -256,11 +259,49 @@ proc ::urlwiz::url_reffed {nick chan text} {
 	set timeago [duration [expr {$currentime - [lindex $urlinfo 7]}]]
 
         if {[lindex $urlinfo 3] != ""} {
-            puthelp "PRIVMSG $chan :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 3] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
+            puthelp "NOTICE $nick :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 3] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
 	} else {
-            puthelp "PRIVMSG $chan :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 1] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
+            puthelp "NOTICE $nick :\[URL [lindex $urlinfo 0]\] [lindex $urlinfo 1] ([lindex $urlinfo 2]) linked by [lindex $urlinfo 4] $timeago ago"
 	}
     }
+}
+
+proc ::urlwiz::url_stats {nick chan text} {
+
+    variable urlwiz
+
+    set db [::mysql::connect -host $urlwiz(mysqlhost) -user $urlwiz(mysqluser) -password $urlwiz(mysqlpass)]
+    ::mysql::use $db $urlwiz(mysqldb)
+
+    set sqlsel "SELECT count(*) FROM url"
+    set total [::mysql::sel $db $sqlsel -list]
+
+    set sqlsel "select nick, count(*) as count from url group by nick order by count desc limit 5"
+    set top5 [::mysql::sel $db $sqlsel -list]
+
+    set sqlsel "select count(*) from url where tinyurl like ''"
+    set shortened [::mysql::sel $db $sqlsel -list]
+
+    set percentage [expr (double($shortened) / double($total)) * 100]
+
+    puthelp "NOTICE $nick :\[URL Stats\]:"
+    puthelp "NOTICE $nick :There are $total links saved."
+    puthelp "NOTICE $nick :$shortened links had to be shortened ($percentage\%)."
+
+    puthelp "NOTICE $nick : "
+    puthelp "NOTICE $nick :Top 5 linkers:"
+
+    set i 1
+
+    foreach poster $top5 {
+
+        puthelp "NOTICE $nick :$i. [lindex $poster 0] ([lindex $poster 1] links)"
+	set i [expr $i + 1]
+
+    }
+
+
+
 }
 
 proc ::urlwiz::trigger {nick host user chan text} {
