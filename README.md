@@ -10,7 +10,7 @@ This script grabs all urls (http only) on a irc channel
 * stores for who the link was pasted 
   (if the line is starting with <nick> )
 * only enable for specific channels (+urlwiz)
-* supports logging if enabled for a channel (+urlwizlog)
+* supports logging if enabled for a channel (+logurlwiz)
 
 ## tags
 
