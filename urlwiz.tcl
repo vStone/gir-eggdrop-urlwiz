@@ -40,8 +40,8 @@ proc ::urlwiz::init {args} {
     variable version
     variable packages
 
-    set version(number) "0.1" 
-    set version(date)   "2012.01.30"
+    set version(number) "0.2" 
+    set version(date)   "2012.02.01"
 
 
     package require http
@@ -58,8 +58,7 @@ proc ::urlwiz::init {args} {
 
     bind evnt -|- prerehash [namespace current]::deinit
     bind pubm $urlwiz(pubmflags) {*://*} [namespace current]::trigger
-
-    bind pubm $urlwiz(pubmflags) "% !url*" [namespace current]::command_trigger
+    bind pubm $urlwiz(pubmflags) {*!url*} [namespace current]::command_trigger
 
     putlog "URL Wiz $version(number) ($version(date)): Loaded."
 }
@@ -69,6 +68,7 @@ proc ::urlwiz::deinit {args} {
 
     catch {unbind evnt -|- prerehash [namespace current]::deinit}
     catch {unbind pubm $urlwiz(pubmflags) {*://:*} [namespace current]::trigger}
+    catch {unbind pubm $urlwiz(pubmflags) {*!url*} [namespace current]::command_trigger}
 
 }
 
@@ -129,25 +129,25 @@ proc ::urlwiz::todb {alink} {
 proc ::urlwiz::command_trigger {nick host user chan text} {
     variable urlwiz
 
-    #puthelp "PRIVMSG $chan ::DEBUG: $text"
-
     switch -glob $text {
         "!url last*" {[namespace current]::url_last $nick $chan $text}
 	"!url search*" {[namespace current]::url_search $nick $chan $text}
 	"!url respam*" {[namespace current]::url_respam $nick $chan $text}
 	"!url reffed*" {[namespace current]::url_reffed $nick $chan $text}
 	"!url stats" {[namespace current]::url_stats $nick $chan $text}
-	"!url" -
-	default {
-	    puthelp "NOTICE $nick :\[URL usage\]:"
-	    puthelp "NOTICE $nick :Last x url's (default 5)     : !url last \[x\]"
-	    puthelp "NOTICE $nick :Search for keyword           : !url search <keyword>"
-            puthelp "NOTICE $nick :Respam a url                 : !url respam <id>"
-	    puthelp "NOTICE $nick :View reffered url's for nick : !url reffed \[nick\]"
-	    puthelp "NOTICE $nick :Show some basic stats        : !url stats"
-	    return
-	}
+	default {[namespace current]::url_help $nick $chan $text}
     }
+}
+
+proc ::urlwiz::url_help {nick chan text} {
+
+    puthelp "NOTICE $nick :\[URL usage\]:"
+    puthelp "NOTICE $nick :Last x url's (default 5)     : !url last \[x\]"
+    puthelp "NOTICE $nick :Search for keyword           : !url search <keyword>"
+    puthelp "NOTICE $nick :Respam a url                 : !url respam <id>"
+    puthelp "NOTICE $nick :View reffered url's for nick : !url reffed \[nick\]"
+    puthelp "NOTICE $nick :Show some basic stats        : !url stats"
+
 }
 
 proc ::urlwiz::url_last {nick chan text} {
