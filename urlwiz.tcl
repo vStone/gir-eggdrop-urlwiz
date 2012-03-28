@@ -41,7 +41,7 @@ proc ::urlwiz::init {args} {
     variable packages
 
     set version(number) "0.2" 
-    set version(date)   "2012.02.01"
+    set version(date)   "2012.03.28"
 
 
     package require http
