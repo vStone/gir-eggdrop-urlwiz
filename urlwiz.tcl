@@ -385,7 +385,7 @@ proc ::urlwiz::geturl {url args} {
     variable packages 
     array set URI [::uri::split $url] ;# Need host info from here
     while {1} {
-        if {[regexp {^https} $url] && $packages(tls) != 0} {
+        if {[regexp {^https} $url] && $packages(tls) == 0} {
             ::http::register https 443 ::tls::socket
         }
         eval "set token \[::http::geturl $url $args\]"
