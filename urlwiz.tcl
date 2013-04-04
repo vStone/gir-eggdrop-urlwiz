@@ -40,8 +40,8 @@ proc ::urlwiz::init {args} {
     variable version
     variable packages
 
-    set version(number) "0.2" 
-    set version(date)   "2012.03.28"
+    set version(number) "0.2.1" 
+    set version(date)   "2013.04.04"
 
 
     package require http
@@ -385,7 +385,7 @@ proc ::urlwiz::geturl {url args} {
     variable packages 
     array set URI [::uri::split $url] ;# Need host info from here
     while {1} {
-        if {[regexp {^https} $url] && $packages(tls) != 0} {
+        if {[regexp {^https} $url] && $packages(tls) == 0} {
             ::http::register https 443 ::tls::socket
         }
         eval "set token \[::http::geturl $url $args\]"
@@ -463,7 +463,4 @@ proc ::urlwiz::tinyurl {url} {
  return ""
 }
 
-
-
 ::urlwiz::init;
-putlog "URLWiz Loadeth";
